@@ -32,7 +32,15 @@ public struct Magic8BallView: UIViewRepresentable {
     }
 
     public func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
+        // Configure WKWebView with aggressive caching for offline support
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore.default()
+        
+        // Set cache policy to use cached data when available
+        let processPool = WKProcessPool()
+        configuration.processPool = processPool
+        
+        let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.layer.cornerRadius = cornerRadius
         webView.layer.masksToBounds = true
         webView.navigationDelegate = context.coordinator
@@ -40,10 +48,13 @@ public struct Magic8BallView: UIViewRepresentable {
         // Apply theme-based styling
         applyTheme(to: webView)
         
-        // Load with simple cache policy
+        // Load with aggressive cache policy for offline support
         if let url = URL(string: urlString) {
             var request = URLRequest(url: url)
+            // Use cached data if available, even if expired
             request.cachePolicy = .returnCacheDataElseLoad
+            // Set cache control headers for better offline support
+            request.setValue("max-age=3600", forHTTPHeaderField: "Cache-Control")
             webView.load(request)
         }
         return webView
@@ -84,11 +95,41 @@ public struct Magic8BallView: UIViewRepresentable {
         }
         
         public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            parent.onError?(error)
+            // Check if this is a network error and try to load from cache
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain && 
+               (nsError.code == NSURLErrorNotConnectedToInternet || 
+                nsError.code == NSURLErrorNetworkConnectionLost) {
+                // Try to reload with cache-only policy for offline fallback
+                if let url = URL(string: parent.urlString) {
+                    var request = URLRequest(url: url)
+                    request.cachePolicy = .returnCacheDataDontLoad
+                    webView.load(request)
+                }
+            } else {
+                parent.onError?(error)
+            }
         }
         
         public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
             // Page started loading
+        }
+        
+        public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            // Handle provisional navigation failures (like network errors)
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain && 
+               (nsError.code == NSURLErrorNotConnectedToInternet || 
+                nsError.code == NSURLErrorNetworkConnectionLost) {
+                // Try cache-only fallback
+                if let url = URL(string: parent.urlString) {
+                    var request = URLRequest(url: url)
+                    request.cachePolicy = .returnCacheDataDontLoad
+                    webView.load(request)
+                }
+            } else {
+                parent.onError?(error)
+            }
         }
     }
 }

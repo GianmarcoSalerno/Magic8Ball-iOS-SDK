@@ -52,12 +52,22 @@ The SDK wraps a `WKWebView` that loads the Magic 8-Ball web experience from `htt
 - **Dynamic updates**: Content can be updated without App Store reviews
 - **Cross-platform consistency**: Same experience across iOS, Android, and Web
 - **Rapid iteration**: A/B testing and feature updates without app updates
+- **Offline support**: Intelligent caching allows the app to work offline after the first successful load
+
+## Features
+
+- **One-line integration**: `Magic8BallView()`
+- **SwiftUI native**: Built with SwiftUI for seamless integration
+- **Web-based content**: Dynamic updates without App Store reviews
+- **Lightweight**: Minimal overhead, just a WebView wrapper
+- **Offline caching**: Works offline after first load with intelligent cache fallback
+- **Customization**: Theme and corner radius options
+- **Callbacks**: onLoad and onError callbacks for integration
+- **Unit tested**: Comprehensive test coverage
 
 ## Limitations
 
-- Requires internet connection to load the web content
-- No offline caching in current version
-- Limited customization options (planned for future releases)
+- Requires internet connection for initial load
 - WebView performance characteristics apply
 
 ## Demo App
