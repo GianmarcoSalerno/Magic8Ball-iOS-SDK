@@ -4,12 +4,14 @@
 import SwiftUI
 import WebKit
 
+@available(iOS 14.0, *)
 public enum Magic8BallTheme {
     case light
     case dark
     case auto
 }
 
+@available(iOS 14.0, *)
 public struct Magic8BallView: UIViewRepresentable {
     private let urlString = "https://xvehl58kcb.appflowapp.com/chat"
     private let theme: Magic8BallTheme
