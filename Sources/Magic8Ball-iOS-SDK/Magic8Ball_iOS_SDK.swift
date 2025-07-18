@@ -30,7 +30,14 @@ public struct Magic8BallView: UIViewRepresentable {
 
     public func makeUIView(context: Context) -> WKWebView {
         let webView = WKWebView()
-        webView.backgroundColor = UIColor(backgroundColor)
+        
+        // Set WebView background with proper color conversion
+        if backgroundColor != .clear {
+            webView.backgroundColor = UIColor(backgroundColor)
+        } else {
+            webView.backgroundColor = .systemBackground
+        }
+        
         webView.layer.cornerRadius = cornerRadius
         webView.layer.masksToBounds = true
         
@@ -46,7 +53,12 @@ public struct Magic8BallView: UIViewRepresentable {
 
     public func updateUIView(_ uiView: WKWebView, context: Context) {
         // Update styling if needed
-        uiView.backgroundColor = UIColor(backgroundColor)
+        if backgroundColor != .clear {
+            uiView.backgroundColor = UIColor(backgroundColor)
+        } else {
+            uiView.backgroundColor = .systemBackground
+        }
+        
         uiView.layer.cornerRadius = cornerRadius
         applyTheme(to: uiView)
     }
