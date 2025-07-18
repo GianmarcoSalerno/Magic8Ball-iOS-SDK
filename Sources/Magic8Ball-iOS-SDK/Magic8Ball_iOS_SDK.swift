@@ -32,15 +32,7 @@ public struct Magic8BallView: UIViewRepresentable {
     }
 
     public func makeUIView(context: Context) -> WKWebView {
-        // Configure WebView for offline caching
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = WKWebsiteDataStore.default()
-        
-        // Enable disk cache
-        let processPool = WKProcessPool()
-        config.processPool = processPool
-        
-        let webView = WKWebView(frame: .zero, configuration: config)
+        let webView = WKWebView()
         webView.layer.cornerRadius = cornerRadius
         webView.layer.masksToBounds = true
         webView.navigationDelegate = context.coordinator
@@ -48,10 +40,9 @@ public struct Magic8BallView: UIViewRepresentable {
         // Apply theme-based styling
         applyTheme(to: webView)
         
-        // Load with cache policy
+        // Load with simple cache policy
         if let url = URL(string: urlString) {
             var request = URLRequest(url: url)
-            // Use cached data if available, otherwise load from network
             request.cachePolicy = .returnCacheDataElseLoad
             webView.load(request)
         }
@@ -91,15 +82,6 @@ public struct Magic8BallView: UIViewRepresentable {
         
         public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             parent.onError?(error)
-        }
-        
-        public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-            // Handle offline scenario - try to load cached content
-            if let url = URL(string: parent.urlString) {
-                var request = URLRequest(url: url)
-                request.cachePolicy = .returnCacheDataDontLoad // Only use cache
-                webView.load(request)
-            }
         }
     }
 }
