@@ -77,11 +77,18 @@ public struct Magic8BallView: UIViewRepresentable {
         }
         
         public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            parent.onLoad?()
+            // Add a small delay to ensure the page is fully interactive
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.parent.onLoad?()
+            }
         }
         
         public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             parent.onError?(error)
+        }
+        
+        public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            // Page started loading
         }
     }
 }
